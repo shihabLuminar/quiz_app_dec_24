@@ -1,7 +1,7 @@
 import 'package:quiz_app_dec/model/questions_model.dart';
 
 class Dummydb {
-  List<QuestionsModel> questions = [
+  static List<QuestionsModel> questions = [
     QuestionsModel(
       question: "What is Flutter?",
       options: [

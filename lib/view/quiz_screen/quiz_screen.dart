@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app_dec/dummydb.dart';
+import 'package:quiz_app_dec/view/results_screen/result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -8,6 +10,8 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+  int questinIndex = 0;
+  int? clickedIndex;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +22,7 @@ class _QuizScreenState extends State<QuizScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Text(
-                "1/10",
+                "${questinIndex + 1}/${Dummydb.questions.length}",
                 style: TextStyle(
                     color: Colors.grey,
                     fontWeight: FontWeight.bold,
@@ -36,13 +40,15 @@ class _QuizScreenState extends State<QuizScreen> {
               children: [
                 Expanded(
                   child: Container(
+                    padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.grey,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      "question",
+                      textAlign: TextAlign.center,
+                      Dummydb.questions[questinIndex].question,
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -52,42 +58,76 @@ class _QuizScreenState extends State<QuizScreen> {
                   spacing: 10,
                   children: List.generate(
                     4,
-                    (index) => Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "option $index",
-                            style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Icon(
-                            Icons.circle_outlined,
-                            color: Colors.grey,
-                          )
-                        ],
+                    (optionIndex) => InkWell(
+                      onTap: () {
+                        if (clickedIndex == null) {
+                          clickedIndex = optionIndex;
+                          setState(() {});
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _buildOptionColor(optionIndex),
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                Dummydb.questions[questinIndex]
+                                    .options[optionIndex],
+                                style: TextStyle(
+                                    color: (clickedIndex != null &&
+                                            Dummydb.questions[questinIndex]
+                                                    .answerIndex ==
+                                                optionIndex)
+                                        ? Colors.black
+                                        : Colors.grey,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Icon(
+                              Icons.circle_outlined,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Next",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (questinIndex < Dummydb.questions.length - 1) {
+                        questinIndex++;
+                        clickedIndex = null;
+                      } else {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ResultScreen(),
+                            ));
+                      }
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Next",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
                   ),
                 ),
               ],
@@ -95,4 +135,29 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ));
   }
+
+  Color? _buildOptionColor(int optionIndex) {
+    if (clickedIndex != null) {
+      if (Dummydb.questions[questinIndex].answerIndex == optionIndex) {
+        return Colors.green;
+      }
+    }
+
+    if (clickedIndex == optionIndex) {
+      if (clickedIndex == Dummydb.questions[questinIndex].answerIndex) {
+        return Colors.green;
+      } else {
+        return Colors.red;
+      }
+    }
+    return null;
+  }
 }
+
+// clicked index = 1
+// ans = 1
+
+//0
+// 1
+// 2
+// 3
