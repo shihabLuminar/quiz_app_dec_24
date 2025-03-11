@@ -10,6 +10,7 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+  int rightAnsCount = 0;
   int questinIndex = 0;
   int? clickedIndex;
   @override
@@ -62,6 +63,13 @@ class _QuizScreenState extends State<QuizScreen> {
                       onTap: () {
                         if (clickedIndex == null) {
                           clickedIndex = optionIndex;
+                          // to increment the right ans count
+                          if (clickedIndex ==
+                              Dummydb.questions[questinIndex].answerIndex) {
+                            rightAnsCount++;
+                            print(
+                                "right ans count  ----------> $rightAnsCount");
+                          }
                           setState(() {});
                         }
                       },
@@ -81,6 +89,8 @@ class _QuizScreenState extends State<QuizScreen> {
                                 Dummydb.questions[questinIndex]
                                     .options[optionIndex],
                                 style: TextStyle(
+
+                                    //show options text color black if its right answer
                                     color: (clickedIndex != null &&
                                             Dummydb.questions[questinIndex]
                                                     .answerIndex ==
@@ -101,35 +111,40 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                   ),
                 ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (questinIndex < Dummydb.questions.length - 1) {
-                        questinIndex++;
-                        clickedIndex = null;
-                      } else {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ResultScreen(),
-                            ));
-                      }
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Next",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                Visibility(
+                  visible: clickedIndex != null,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (questinIndex < Dummydb.questions.length - 1) {
+                          questinIndex++;
+                          clickedIndex = null; //
+                        } else {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ResultScreen(
+                                  rightAnsCount: rightAnsCount,
+                                ),
+                              ));
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -137,12 +152,14 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Color? _buildOptionColor(int optionIndex) {
+    //
     if (clickedIndex != null) {
       if (Dummydb.questions[questinIndex].answerIndex == optionIndex) {
         return Colors.green;
       }
     }
 
+//
     if (clickedIndex == optionIndex) {
       if (clickedIndex == Dummydb.questions[questinIndex].answerIndex) {
         return Colors.green;
